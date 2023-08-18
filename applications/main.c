@@ -10,6 +10,7 @@
 
 #include <rtthread.h>
 #include "main.h"
+#include "gpio.h"
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
@@ -142,6 +143,9 @@ MSH_CMD_EXPORT(led, led sample : led<led0 | 1 = 0 | 1>);
 
 int main(void)
 {
+    HAL_Init();
+
+    MX_GPIO_Init();
 //    /* 动态创 建 线 程 1， 名 称 是 thread1， 入 口 是 thread1_entry*/
 //    tid1 = rt_thread_create("thread1",
 //    thread1_entry, RT_NULL,
