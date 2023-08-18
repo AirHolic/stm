@@ -8,6 +8,8 @@ src  = Glob('*.c')
 src = Split('''
 Src/stm32f4xx_hal_msp.c
 Src/main.c
+Src/gpio.c
+Src/spi.c
 ''')
 
 path = [cwd]
