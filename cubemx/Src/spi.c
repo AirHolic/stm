@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    spi.c
-  * @brief   This file provides code for the configuration
-  *          of the SPI instances.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    spi.c
+ * @brief   This file provides code for the configuration
+ *          of the SPI instances.
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "spi.h"
@@ -54,6 +54,8 @@ void MX_SPI1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SPI1_Init 2 */
+  __HAL_SPI_ENABLE(&hspi1); // 使能 SPI1
+  SPI1_ReadWriteByte(0Xff);        // 启动传输
 
   /* USER CODE END SPI1_Init 2 */
 
@@ -116,4 +118,24 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 
 /* USER CODE BEGIN 1 */
 
+// SPI 速度设置函数
+// SPI 速度=fAPB1/分频系数
+void SPI1_SetSpeed(uint8_t SPI_BaudRatePrescaler)
+{
+  assert_param(IS_SPI_BAUDRATE_PRESCALER(SPI_BaudRatePrescaler)); // 判断有效�??
+  __HAL_SPI_DISABLE(&hspi1);                               // 关闭 SPI
+  hspi1.Instance->CR1 &= 0XFFC7;                           // �?? 3-5 清零，用来设置波特率
+  hspi1.Instance->CR1 |= SPI_BaudRatePrescaler;            // 设置 SPI 速度
+  __HAL_SPI_ENABLE(&hspi1);                                // 使能 SPI
+}
+
+// SPI1 读写�?个字�?
+// TxData:要写入的字节
+// 返回�?:读取到的字节
+uint8_t SPI1_ReadWriteByte(uint8_t TxData)
+{
+  uint8_t Rxdata;
+  HAL_SPI_TransmitReceive(&hspi1, &TxData, &Rxdata, 1, 1000);
+  return Rxdata; // 返回收到的数�?
+}
 /* USER CODE END 1 */
