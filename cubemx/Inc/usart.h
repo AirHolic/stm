@@ -35,13 +35,19 @@ extern "C" {
 extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
+#define USART3_TCPNET 1
 
+#define ATK_IDE01_UART_RX_BUF_SIZE          64
+#define ATK_IDE01_UART_TX_BUF_SIZE          64
 /* USER CODE END Private defines */
 
 void MX_USART3_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-
+void atk_ide01_uart_printf(char *fmt, ...);     /* ATK-IDE01 UART printf */
+void atk_ide01_uart_rx_restart(void);           /* ATK-IDE01 UART重新开始接收数据 */
+rt_uint8_t *atk_ide01_uart_rx_get_frame(void);     /* 获取ATK-IDE01 UART接收到的一帧数据 */
+rt_uint16_t atk_ide01_uart_rx_get_frame_len(void); /* 获取ATK-IDE01 UART接收到的一帧数据的长度 */
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

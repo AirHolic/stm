@@ -10,7 +10,7 @@
 
 #include <rtthread.h>
 #include "main.h"
-#include "spi_flash.h"
+#include "spi_flash/spi_flash.h"
 #define DBG_TAG "main"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
@@ -168,7 +168,7 @@ long SPI_op(int argc, char **argv)
         W25QXX_Read(datatemp, FLASH_SIZE - 100, SIZE);
         // 从倒数第 100 个地址处开始,读出 SIZE 个字节
         LOG_D("The Data Readed Is: "); // 提示传送完成
-        LOG_D(datatemp);               // 显示读到的字符串
+        rt_kprintf(datatemp);               // 显示读到的字符串
     }
     return 0;
 }

@@ -28,7 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-
+#include "rtthread.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -57,10 +57,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define ATK_NET_TR_Pin GPIO_PIN_6
+#define ATK_NET_TR_GPIO_Port GPIOF
 #define LED0_Pin GPIO_PIN_9
 #define LED0_GPIO_Port GPIOF
 #define LED1_Pin GPIO_PIN_10
 #define LED1_GPIO_Port GPIOF
+#define ATK_NET_DF_Pin GPIO_PIN_0
+#define ATK_NET_DF_GPIO_Port GPIOC
+#define USART3_TX_Pin GPIO_PIN_10
+#define USART3_TX_GPIO_Port GPIOB
+#define USART3_RX_Pin GPIO_PIN_11
+#define USART3_RX_GPIO_Port GPIOB
 #define F_CS_Pin GPIO_PIN_14
 #define F_CS_GPIO_Port GPIOB
 #define SPI1_SCK_Pin GPIO_PIN_3
@@ -71,7 +79,8 @@ void Error_Handler(void);
 #define SPI1_MOSI_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
-
+#define SPI_FLASH 1
+#define ATK_NET 1
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

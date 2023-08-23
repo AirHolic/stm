@@ -1,5 +1,5 @@
 #include <spi.h>
-#include <spi_flash.h>
+#include <spi_flash/spi_flash.h>
 uint16_t W25QXX_TYPE = W25Q256; // 默认是W25Q256
 
 // 4Kbytes为一个Sector
@@ -11,9 +11,7 @@ uint16_t W25QXX_TYPE = W25Q256; // 默认是W25Q256
 void W25QXX_Init(void)
 {
     uint8_t temp;
-#if 1
-    MX_GPIO_Init();
-#else
+#ifndef SPI_FLASH
 
     GPIO_InitTypeDef GPIO_Initure;
 

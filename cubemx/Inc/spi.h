@@ -43,7 +43,7 @@ void MX_SPI1_Init(void);
 /* USER CODE BEGIN Prototypes */
   void SPI1_SetSpeed(uint8_t SPI_BaudRatePrescaler);
 
-  uint8_t SPI1_ReadWriteByte(uint8_t TxData);
+  rt_uint8_t SPI1_ReadWriteByte(uint8_t TxData);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
