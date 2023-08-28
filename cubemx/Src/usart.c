@@ -21,8 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-#if USART3_TCPNET
-
+#if ATK_NET
 
 static struct
 {
@@ -31,14 +30,15 @@ static struct
   {
     rt_uint16_t len : 15;                                    /* 帧接收长度，sta[14:0] */
     rt_uint16_t finsh : 1;                                   /* 帧接收完成标志，sta[15] */
-  } sta;                                                  /* 帧状态信息 */
-} g_uart_rx_frame = {0};                                  /* ATK-IDE01 UART接收帧缓冲信息结构体 */
+  } sta;                                                     /* 帧状态信息 */
+} g_uart_rx_frame = {0};                                     /* ATK-IDE01 UART接收帧缓冲信息结构体 */
 static rt_uint8_t g_uart_tx_buf[ATK_IDE01_UART_TX_BUF_SIZE]; /* ATK-IDE01 UART发送缓冲 */
 
 #endif
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart3_tx;
 
 /* USART3 init function */
 
@@ -94,6 +94,25 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+    /* USART3 DMA Init */
+    /* USART3_TX Init */
+    hdma_usart3_tx.Instance = DMA1_Stream3;
+    hdma_usart3_tx.Init.Channel = DMA_CHANNEL_4;
+    hdma_usart3_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+    hdma_usart3_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart3_tx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart3_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart3_tx.Init.Mode = DMA_NORMAL;
+    hdma_usart3_tx.Init.Priority = DMA_PRIORITY_MEDIUM;
+    hdma_usart3_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmatx,hdma_usart3_tx);
+
     /* USART3 interrupt Init */
     HAL_NVIC_SetPriority(USART3_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
@@ -121,16 +140,34 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     */
     HAL_GPIO_DeInit(GPIOB, USART3_TX_Pin|USART3_RX_Pin);
 
+    /* USART3 DMA DeInit */
+    HAL_DMA_DeInit(uartHandle->hdmatx);
+
     /* USART3 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspDeInit 1 */
-    __HAL_UART_DISABLE_IT(uartHandle, UART_IT_RXNE);
-    //__HAL_UART_DISENABLE_IT(uartHandle, UART_IT_IDLE);
+
   /* USER CODE END USART3_MspDeInit 1 */
   }
 }
 
 /* USER CODE BEGIN 1 */
+
+/**
+ * @brief       ATK-IDE01 UART DMA发送中断回调函数,解锁发送模式
+ * @param       无
+ * @retval      无
+ */
+void DMA1_Stream3_IRQHandler()
+{
+    huart3.gState = HAL_UART_STATE_READY;
+    hdma_usart3_tx.State = HAL_DMA_STATE_READY;
+    __HAL_DMA_CLEAR_FLAG(&hdma_usart3_tx, DMA_FLAG_TCIF3_7);
+    __HAL_DMA_CLEAR_FLAG(&hdma_usart3_tx, DMA_FLAG_HTIF3_7);
+    __HAL_DMA_CLEAR_FLAG(&hdma_usart3_tx, DMA_FLAG_FEIF3_7 );
+    __HAL_UNLOCK(&hdma_usart3_tx);
+}
+
 
 /**
  * @brief       ATK-IDE01 UART中断回调函数
@@ -141,38 +178,45 @@ void USART3_IRQHandler(void)
 {
   rt_uint8_t tmp;
     
-    if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_ORE) != RESET)        /* UART接收过载错误中断 */
+  /* enter interrupt */
+  rt_interrupt_enter(); // 在中断中一定要调用这对函数，进入中断
+
+  if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_ORE) != RESET) /* UART接收过载错误中断 */
     {
-        __HAL_UART_CLEAR_OREFLAG(&huart3);                           /* 清除接收过载错误中断标志 */
-        (void)huart3.Instance->SR;                                   /* 先读SR寄存器，再读DR寄存器 */
+    __HAL_UART_CLEAR_OREFLAG(&huart3); /* 清除接收过载错误中断标志 */
+    (void)huart3.Instance->SR;         /* 先读SR寄存器，再读DR寄存器 */
         (void)huart3.Instance->DR;
     }
     
-    if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_RXNE) != RESET)       /* UART接收中断 */
+  if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_RXNE) != RESET) /* UART接收中断 */
     {
-        HAL_UART_Receive(&huart3, &tmp, 1, HAL_MAX_DELAY);           /* UART接收数据 */
+    HAL_UART_Receive(&huart3, &tmp, 1, HAL_MAX_DELAY); /* UART接收数据 */
         
-        if (g_uart_rx_frame.sta.len < (ATK_IDE01_UART_RX_BUF_SIZE - 1))     /* 判断UART接收缓冲是否溢出
+    if (g_uart_rx_frame.sta.len < (ATK_IDE01_UART_RX_BUF_SIZE - 1)) /* 判断UART接收缓冲是否溢出
                                                                              * 留出一位给结束符'\0'
                                                                              */
         {
-            g_uart_rx_frame.buf[g_uart_rx_frame.sta.len] = tmp;             /* 将接收到的数据写入缓缓冲 */
-            g_uart_rx_frame.sta.len++;                                      /* 更新接收到的数据长度 */
+      g_uart_rx_frame.buf[g_uart_rx_frame.sta.len] = tmp; /* 将接收到的数据写入缓缓冲 */
+      g_uart_rx_frame.sta.len++;                          /* 更新接收到的数据长度 */
         }
-        else                                                                /* UART接收缓冲溢出 */
+    else /* UART接收缓冲溢出 */
         {
-            g_uart_rx_frame.sta.len = 0;                                    /* 覆盖之前收到的数据 */
-            g_uart_rx_frame.buf[g_uart_rx_frame.sta.len] = tmp;             /* 将接收到的数据写入缓缓冲 */
-            g_uart_rx_frame.sta.len++;                                      /* 更新接收到的数据长度 */
+      g_uart_rx_frame.sta.len = 0;                        /* 覆盖之前收到的数据 */
+      g_uart_rx_frame.buf[g_uart_rx_frame.sta.len] = tmp; /* 将接收到的数据写入缓缓冲 */
+      g_uart_rx_frame.sta.len++;                          /* 更新接收到的数据长度 */
         }
     }
     
-    if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE) != RESET)       /* UART总线空闲中断 */
+  if (__HAL_UART_GET_FLAG(&huart3, UART_FLAG_IDLE) != RESET) /* UART总线空闲中断 */
     {
-        g_uart_rx_frame.sta.finsh = 1;                                      /* 标记帧接收完成 */
+    g_uart_rx_frame.sta.finsh = 1; /* 标记帧接收完成 */
+    __HAL_UART_CLEAR_IDLEFLAG(&huart3); /* 清除UART总线空闲中断 */
         
         __HAL_UART_CLEAR_IDLEFLAG(&huart3);                          /* 清除UART总线空闲中断 */
     }
+
+  /* leave interrupt */
+  rt_interrupt_leave(); // 在中断中一定要调用这对函数，离开中断
 }
 
 /**
@@ -189,8 +233,9 @@ void atk_ide01_uart_printf(char *fmt, ...)
     rt_vsprintf((char *)g_uart_tx_buf, fmt, ap);
     va_end(ap);
     
-    len = strlen((const char *)g_uart_tx_buf);
-    HAL_UART_Transmit(&huart3, g_uart_tx_buf, len, HAL_MAX_DELAY);
+  len = rt_strlen((const char *)g_uart_tx_buf);
+  HAL_UART_Transmit_DMA(&huart3, g_uart_tx_buf, len);
+
 }
 
 /**
@@ -200,8 +245,8 @@ void atk_ide01_uart_printf(char *fmt, ...)
  */
 void atk_ide01_uart_rx_restart(void)
 {
-    g_uart_rx_frame.sta.len     = 0;
-    g_uart_rx_frame.sta.finsh   = 0;
+  g_uart_rx_frame.sta.len = 0;
+  g_uart_rx_frame.sta.finsh = 0;
 }
 
 

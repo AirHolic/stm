@@ -23,19 +23,33 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-#include "rtthread.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <rtthread.h>
+#include "usart.h"
+#include "dma.h"
+#include "spi.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+  /* 邮箱控制块 */
+  struct rt_mailbox led_mb;
+  /* 用于放邮件的内存池 */
+  char led_mb_pool[64];
+
+  struct msg
+  {
+    char *storey;     // 楼层
+    char *parameters; // 控制参数
+  };
 
 /* USER CODE END ET */
 

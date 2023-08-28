@@ -1,7 +1,7 @@
 #include "atk_usart_net/atk_net.h"
 #include <rtthread.h>
 #include "usart.h"
-
+#include <stdlib.h>
 
 
 /**
@@ -168,7 +168,7 @@ rt_uint8_t atk_ide01_send_at_cmd(char *cmd, char *ack, rt_uint32_t timeout)
             {
                 if (ack != NULL)
                 {
-                    if (strstr((const char *)ret, ack) != NULL)
+                    if (rt_strstr((const char *)ret, ack) != NULL)
                     {
                         return ATK_IDE01_EOK;
                     }
@@ -228,7 +228,7 @@ rt_uint8_t atk_ide01_search_mac(char *mac)
         rt_kprintf("atk_net line227\n");
         return ATK_IDE01_ERROR;
     }
-    memcpy(mac, &buf[param_index], param_len);
+    rt_memcpy(mac, &buf[param_index], param_len);
     mac[17] = '\0';
     
     return ATK_IDE01_EOK;
@@ -319,7 +319,7 @@ rt_uint8_t atk_ide01_get_netmask(char *netmask)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(netmask, &buf[param_index], param_len);
+    rt_memcpy(netmask, &buf[param_index], param_len);
     netmask[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -384,7 +384,7 @@ rt_uint8_t atk_ide01_get_mac(char *mac)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(mac, &buf[buf_index + 1], 17);
+    rt_memcpy(mac, &buf[buf_index + 1], 17);
     mac[17] = '\0';
     
     return ATK_IDE01_EOK;
@@ -445,7 +445,7 @@ rt_uint8_t atk_ide01_get_gateway(char *gateway)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(gateway, &buf[param_index], param_len);
+    rt_memcpy(gateway, &buf[param_index], param_len);
     gateway[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -511,30 +511,30 @@ rt_uint8_t atk_ide01_get_ethmod(atk_ide01_ethmod_t *ethmod)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_ethmod, &buf[param_index], param_len);
+    rt_memcpy(_ethmod, &buf[param_index], param_len);
     _ethmod[param_len] = '\0';
     
-    if (strcmp((char *)_ethmod, "UDP_CLIENT") == 0)
+    if (rt_strcmp((char *)_ethmod, "UDP_CLIENT") == 0)
     {
         *ethmod = ATK_IDE01_ETHMOD_UDP_CLIENT;
     }
-    else if (strcmp((char *)_ethmod, "UDP_SERVER") == 0)
+    else if (rt_strcmp((char *)_ethmod, "UDP_SERVER") == 0)
     {
         *ethmod = ATK_IDE01_ETHMOD_UDP_SERVER;
     }
-    else if (strcmp((char *)_ethmod, "TCP_CLIENT") == 0)
+    else if (rt_strcmp((char *)_ethmod, "TCP_CLIENT") == 0)
     {
         *ethmod = ATK_IDE01_ETHMOD_TCP_CLIENT;
     }
-    else if (strcmp((char *)_ethmod, "TCP_SERVER") == 0)
+    else if (rt_strcmp((char *)_ethmod, "TCP_SERVER") == 0)
     {
         *ethmod = ATK_IDE01_ETHMOD_TCP_SERVER;
     }
-    else if (strcmp((char *)_ethmod, "TCP_CLOUD") == 0)
+    else if (rt_strcmp((char *)_ethmod, "TCP_CLOUD") == 0)
     {
         *ethmod = ATK_IDE01_ETHMOD_TCP_CLOUD;
     }
-    else if (strcmp((char *)_ethmod, "UDP_MULTICAST") == 0)
+    else if (rt_strcmp((char *)_ethmod, "UDP_MULTICAST") == 0)
     {
         *ethmod = ATK_IDE01_ETHMOD_UDP_MULTICAST;
     }
@@ -646,7 +646,7 @@ rt_uint8_t atk_ide01_get_dns(char *dns)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(dns, &buf[param_index], param_len);
+    rt_memcpy(dns, &buf[param_index], param_len);
     dns[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -707,7 +707,7 @@ rt_uint8_t atk_ide01_get_localport(char *localport)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(localport, &buf[param_index], param_len);
+    rt_memcpy(localport, &buf[param_index], param_len);
     localport[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -768,7 +768,7 @@ rt_uint8_t atk_ide01_get_remoteport(char *remoteport)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(remoteport, &buf[param_index], param_len);
+    rt_memcpy(remoteport, &buf[param_index], param_len);
     remoteport[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -845,7 +845,7 @@ rt_uint8_t atk_ide01_get_remoteip(char *remoteip)
         return ATK_IDE01_ERROR;
     }
     param_len = buf_index - param_index;
-    memcpy(remoteip, &buf[param_index], param_len);
+    rt_memcpy(remoteip, &buf[param_index], param_len);
     remoteip[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -906,7 +906,7 @@ rt_uint8_t atk_ide01_get_staticip(char *staticip)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(staticip, &buf[param_index], param_len);
+    rt_memcpy(staticip, &buf[param_index], param_len);
     staticip[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -968,14 +968,14 @@ rt_uint8_t atk_ide01_get_echo(atk_ide01_echo_t *echo)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_echo, &buf[param_index], param_len);
+    rt_memcpy(_echo, &buf[param_index], param_len);
     _echo[param_len] = '\0';
     
-    if (strcmp((char *)_echo, "ON") == 0)
+    if (rt_strcmp((char *)_echo, "ON") == 0)
     {
         *echo = ATK_IDE01_ECHO_ON;
     }
-    else if (strcmp((char *)_echo, "OFF") == 0)
+    else if (rt_strcmp((char *)_echo, "OFF") == 0)
     {
         *echo = ATK_IDE01_ECHO_OFF;
     }
@@ -1061,14 +1061,14 @@ rt_uint8_t atk_ide01_get_dhcp(atk_ide01_dhcp_t *dhcp)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_echo, &buf[param_index], param_len);
+    rt_memcpy(_echo, &buf[param_index], param_len);
     _echo[param_len] = '\0';
     
-    if (strcmp((char *)_echo, "ON") == 0)
+    if (rt_strcmp((char *)_echo, "ON") == 0)
     {
         *dhcp = ATK_IDE01_DHCP_ON;
     }
-    else if (strcmp((char *)_echo, "OFF") == 0)
+    else if (rt_strcmp((char *)_echo, "OFF") == 0)
     {
         *dhcp = ATK_IDE01_DHCP_OFF;
     }
@@ -1192,7 +1192,7 @@ rt_uint8_t atk_ide01_get_version(char *version)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(version, &buf[param_index], param_len);
+    rt_memcpy(version, &buf[param_index], param_len);
     version[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -1301,7 +1301,7 @@ rt_uint8_t atk_ide01_get_moduname(char *moduname)
         return ATK_IDE01_ERROR;
     }
     param_len = buf_index - param_index;
-    memcpy(moduname, &buf[param_index], param_len);
+    rt_memcpy(moduname, &buf[param_index], param_len);
     moduname[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -1362,7 +1362,7 @@ rt_uint8_t atk_ide01_get_xcomport(char *xcomport)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(xcomport, &buf[param_index], param_len);
+    rt_memcpy(xcomport, &buf[param_index], param_len);
     xcomport[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -1431,61 +1431,61 @@ rt_uint8_t atk_ide01_get_uart(atk_ide01_uart_baudrate_t *baudrate, atk_ide01_uar
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(_baudrate, &buf[param_index], param_len);
+        rt_memcpy(_baudrate, &buf[param_index], param_len);
         _baudrate[param_len] = '\0';
-        if (strcmp((char *)_baudrate, "2400") == 0)
+        if (rt_strcmp((char *)_baudrate, "2400") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_2400;
         }
-        else if (strcmp((char *)_baudrate, "4800") == 0)
+        else if (rt_strcmp((char *)_baudrate, "4800") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_4800;
         }
-        else if (strcmp((char *)_baudrate, "9600") == 0)
+        else if (rt_strcmp((char *)_baudrate, "9600") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_9600;
         }
-        else if (strcmp((char *)_baudrate, "14400") == 0)
+        else if (rt_strcmp((char *)_baudrate, "14400") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_14400;
         }
-        else if (strcmp((char *)_baudrate, "38400") == 0)
+        else if (rt_strcmp((char *)_baudrate, "38400") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_38400;
         }
-        else if (strcmp((char *)_baudrate, "43000") == 0)
+        else if (rt_strcmp((char *)_baudrate, "43000") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_43000;
         }
-        else if (strcmp((char *)_baudrate, "57600") == 0)
+        else if (rt_strcmp((char *)_baudrate, "57600") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_57600;
         }
-        else if (strcmp((char *)_baudrate, "76800") == 0)
+        else if (rt_strcmp((char *)_baudrate, "76800") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_76800;
         }
-        else if (strcmp((char *)_baudrate, "115200") == 0)
+        else if (rt_strcmp((char *)_baudrate, "115200") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_115200;
         }
-        else if (strcmp((char *)_baudrate, "128000") == 0)
+        else if (rt_strcmp((char *)_baudrate, "128000") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_128000;
         }
-        else if (strcmp((char *)_baudrate, "230400") == 0)
+        else if (rt_strcmp((char *)_baudrate, "230400") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_230400;
         }
-        else if (strcmp((char *)_baudrate, "256000") == 0)
+        else if (rt_strcmp((char *)_baudrate, "256000") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_256000;
         }
-        else if (strcmp((char *)_baudrate, "460800") == 0)
+        else if (rt_strcmp((char *)_baudrate, "460800") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_460800;
         }
-        else if (strcmp((char *)_baudrate, "921600") == 0)
+        else if (rt_strcmp((char *)_baudrate, "921600") == 0)
         {
             *baudrate = ATK_IDE01_UART_BAUDRATE_921600;
         }
@@ -1501,13 +1501,13 @@ rt_uint8_t atk_ide01_get_uart(atk_ide01_uart_baudrate_t *baudrate, atk_ide01_uar
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(_stop, &buf[param_index], param_len);
+        rt_memcpy(_stop, &buf[param_index], param_len);
         _stop[param_len] = '\0';
-        if (strcmp((char *)_stop, "1") == 0)
+        if (rt_strcmp((char *)_stop, "1") == 0)
         {
             *stop = ATK_IDE01_UART_STOP_1;
         }
-        else if (strcmp((char *)_stop, "2") == 0)
+        else if (rt_strcmp((char *)_stop, "2") == 0)
         {
             *stop = ATK_IDE01_UART_STOP_2;
         }
@@ -1523,9 +1523,9 @@ rt_uint8_t atk_ide01_get_uart(atk_ide01_uart_baudrate_t *baudrate, atk_ide01_uar
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(_data, &buf[param_index], param_len);
+        rt_memcpy(_data, &buf[param_index], param_len);
         _data[param_len] = '\0';
-        if (strcmp((char *)_data, "8") == 0)
+        if (rt_strcmp((char *)_data, "8") == 0)
         {
             *data = ATK_IDE01_UART_DATA_8;
         }
@@ -1541,17 +1541,17 @@ rt_uint8_t atk_ide01_get_uart(atk_ide01_uart_baudrate_t *baudrate, atk_ide01_uar
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(_parity, &buf[param_index], param_len);
+        rt_memcpy(_parity, &buf[param_index], param_len);
         _parity[param_len] = '\0';
-        if (strcmp((char *)_parity, "NONE") == 0)
+        if (rt_strcmp((char *)_parity, "NONE") == 0)
         {
             *parity = ATK_IDE01_UART_PARITY_NONE;
         }
-        else if (strcmp((char *)_parity, "EVEN") == 0)
+        else if (rt_strcmp((char *)_parity, "EVEN") == 0)
         {
             *parity = ATK_IDE01_UART_PARITY_EVEN;
         }
-        else if (strcmp((char *)_parity, "ODD") == 0)
+        else if (rt_strcmp((char *)_parity, "ODD") == 0)
         {
             *parity = ATK_IDE01_UART_PARITY_ODD;
         }
@@ -1763,7 +1763,7 @@ rt_uint8_t atk_ide01_get_uartpacktime(rt_uint16_t *uartpacktime)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_uartpacktime, &buf[param_index], param_len);
+    rt_memcpy(_uartpacktime, &buf[param_index], param_len);
     _uartpacktime[param_len] = '\0';
     *uartpacktime = (rt_uint16_t)atoi(_uartpacktime);
     
@@ -1825,7 +1825,7 @@ rt_uint8_t atk_ide01_get_uartpacklen(rt_uint16_t *uartpacklen)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_uartpacklen, &buf[param_index], param_len);
+    rt_memcpy(_uartpacklen, &buf[param_index], param_len);
     _uartpacklen[param_len] = '\0';
     *uartpacklen = (rt_uint16_t)atoi(_uartpacklen);
     
@@ -1894,14 +1894,14 @@ rt_uint8_t atk_ide01_get_cloudlinken(atk_ide01_cloudlink_t *cloudlink)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_cloudlink, &buf[param_index], param_len);
+    rt_memcpy(_cloudlink, &buf[param_index], param_len);
     _cloudlink[param_len] = '\0';
     
-    if (strcmp((char *)_cloudlink, "ON") == 0)
+    if (rt_strcmp((char *)_cloudlink, "ON") == 0)
     {
         *cloudlink = ATK_IDE01_CLOUDLINK_ON;
     }
-    else if (strcmp((char *)_cloudlink, "OFF") == 0)
+    else if (rt_strcmp((char *)_cloudlink, "OFF") == 0)
     {
         *cloudlink = ATK_IDE01_CLOUDLINK_OFF;
     }
@@ -1987,7 +1987,7 @@ rt_uint8_t atk_ide01_get_cloudport(char *cloudport)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(cloudport, &buf[param_index], param_len);
+    rt_memcpy(cloudport, &buf[param_index], param_len);
     cloudport[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -2088,7 +2088,7 @@ rt_uint8_t atk_ide01_get_clouddomain(char *clouddomain)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(clouddomain, &buf[param_index], param_len);
+    rt_memcpy(clouddomain, &buf[param_index], param_len);
     clouddomain[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -2149,7 +2149,7 @@ rt_uint8_t atk_ide01_get_atklinkpwd(char *atklinkpwd)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(atklinkpwd, &buf[param_index], param_len);
+    rt_memcpy(atklinkpwd, &buf[param_index], param_len);
     atklinkpwd[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -2210,7 +2210,7 @@ rt_uint8_t atk_ide01_get_atkyundevid(char *atkyundevid)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(atkyundevid, &buf[param_index], param_len);
+    rt_memcpy(atkyundevid, &buf[param_index], param_len);
     atkyundevid[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -2228,7 +2228,7 @@ rt_uint8_t atk_ide01_set_atkyundevid(char *atkyundevid)
     rt_uint8_t ret;
     char cmd[38];
     
-    if (strlen((char *)atkyundevid) != 20)
+    if (rt_strlen((char *)atkyundevid) != 20)
     {
         return ATK_IDE01_EINVAL;
     }
@@ -2278,14 +2278,14 @@ rt_uint8_t atk_ide01_get_netlksta(atk_ide01_netlksta_t *netlksta)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_netlksta, &buf[param_index], param_len);
+    rt_memcpy(_netlksta, &buf[param_index], param_len);
     _netlksta[param_len] = '\0';
     
-    if (strcmp((char *)_netlksta, "ON") == 0)
+    if (rt_strcmp((char *)_netlksta, "ON") == 0)
     {
         *netlksta = ATK_IDE01_NETLKSTA_ON;
     }
-    else if (strcmp((char *)_netlksta, "OFF") == 0)
+    else if (rt_strcmp((char *)_netlksta, "OFF") == 0)
     {
         *netlksta = ATK_IDE01_NETLKSTA_OFF;
     }
@@ -2358,7 +2358,7 @@ rt_uint8_t atk_ide01_get_linknum(rt_uint16_t *linknum)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(_linknum, &buf[param_index], param_len);
+    rt_memcpy(_linknum, &buf[param_index], param_len);
     _linknum[param_len] = '\0';
     *linknum = (rt_uint16_t)atoi(_linknum);
     
@@ -2404,7 +2404,7 @@ rt_uint8_t atk_ide01_get_remotelinkinfo(rt_uint8_t num, char *remoteip, char *re
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(remoteip, &buf[param_index], param_len);
+        rt_memcpy(remoteip, &buf[param_index], param_len);
         remoteip[param_len] = '\0';
     }
     if (remoteport != NULL)
@@ -2414,7 +2414,7 @@ rt_uint8_t atk_ide01_get_remotelinkinfo(rt_uint8_t num, char *remoteip, char *re
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(remoteport, &buf[param_index], param_len);
+        rt_memcpy(remoteport, &buf[param_index], param_len);
         remoteport[param_len] = '\0';
     }
     
@@ -2460,7 +2460,7 @@ rt_uint8_t atk_ide01_get_locallinkinfo(rt_uint8_t num, char *localip, char *loca
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(localip, &buf[param_index], param_len);
+        rt_memcpy(localip, &buf[param_index], param_len);
         localip[param_len] = '\0';
     }
     if (localport != NULL)
@@ -2470,7 +2470,7 @@ rt_uint8_t atk_ide01_get_locallinkinfo(rt_uint8_t num, char *localip, char *loca
         {
             return ATK_IDE01_ERROR;
         }
-        memcpy(localport, &buf[param_index], param_len);
+        rt_memcpy(localport, &buf[param_index], param_len);
         localport[param_len] = '\0';
     }
     
@@ -2511,7 +2511,7 @@ rt_uint8_t atk_ide01_get_multcastip(char *multcastip)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(multcastip, &buf[param_index], param_len);
+    rt_memcpy(multcastip, &buf[param_index], param_len);
     multcastip[param_len] = '\0';
     
     return ATK_IDE01_EOK;
@@ -2572,7 +2572,7 @@ rt_uint8_t atk_ide01_get_multcastport(char *multcastport)
     {
         return ATK_IDE01_ERROR;
     }
-    memcpy(multcastport, &buf[param_index], param_len);
+    rt_memcpy(multcastport, &buf[param_index], param_len);
     multcastport[param_len] = '\0';
     
     return ATK_IDE01_EOK;
