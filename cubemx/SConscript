@@ -12,6 +12,7 @@ Src/gpio.c
 Src/spi.c
 Src/usart.c
 Src/dma.c
+Src/iwdg.h
 ''')
 
 path = [cwd]

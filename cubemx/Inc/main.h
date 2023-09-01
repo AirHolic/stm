@@ -23,8 +23,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -36,6 +35,9 @@ extern "C"
 #include "usart.h"
 #include "dma.h"
 #include "spi.h"
+#include "iwdg.h"
+#include "./json_deal/jsmn.h"
+#include "./json_deal/jsmn_util.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    usart.h
+  * @file    iwdg.h
   * @brief   This file contains all the function prototypes for
-  *          the usart.c file
+  *          the iwdg.c file
   ******************************************************************************
   * @attention
   *
@@ -18,8 +18,8 @@
   */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef __IWDG_H__
+#define __IWDG_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,26 +32,21 @@ extern "C" {
 
 /* USER CODE END Includes */
 
-extern UART_HandleTypeDef huart3;
+extern IWDG_HandleTypeDef hiwdg;
 
 /* USER CODE BEGIN Private defines */
 
-#define ATK_IDE01_UART_RX_BUF_SIZE 2048
-#define ATK_IDE01_UART_TX_BUF_SIZE 2048
 /* USER CODE END Private defines */
 
-void MX_USART3_UART_Init(void);
+void MX_IWDG_Init(void);
 
 /* USER CODE BEGIN Prototypes */
-  void atk_ide01_uart_printf(char *fmt, ...);        /* ATK-IDE01 UART printf */
-  void atk_ide01_uart_rx_restart(void);              /* ATK-IDE01 UART重新开始接收数据 */
-rt_uint8_t *atk_ide01_uart_rx_get_frame(void);     /* 获取ATK-IDE01 UART接收到的一帧数据 */
-rt_uint16_t atk_ide01_uart_rx_get_frame_len(void); /* 获取ATK-IDE01 UART接收到的一帧数据的长度 */
+void idle_hook(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __USART_H__ */
+#endif /* __IWDG_H__ */
 
